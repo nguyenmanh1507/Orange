@@ -1,121 +1,76 @@
 import React, { Component } from 'react'
 import {
- StyleSheet,
- View,
- ListView,
- Image,
- Text
+  StyleSheet,
+  View,
+  Image,
+  Text,
+  TabBarIOS
 } from 'react-native'
-import data from './sales.json'
 
-const basketIcon = require('./images/basket.png')
+const homeIcon = require('./images/home.png')
+const favIcon = require('./images/star.png')
+const blogIcon = require('./images/notebook.png')
+const profileIcon = require('./images/user.png')
 
 class MainApp extends Component {
-  constructor (props) {
-    super(props)
-    const ds = new ListView.DataSource({
-      rowHasChanged: (r1, r2) => r1 !== r2
-    })
-
-    this.state = {
-      dataSource: ds.cloneWithRows(data)
-    }
+  state = {
+    selected: 'home'
   }
 
-  renderRow (record) {
+  selectTab (id) {
+    this.setState({ selected: id })
+  }
+
+  renderTab (options) {
     return (
-      <View style={styles.row}>
-        <View style={styles.iconContainer}>
-          <Image source={basketIcon} style={styles.icon} />
+      <TabBarIOS.Item
+        title={options.title}
+        selected={this.state.selected === options.id}
+        onPress={() => this.selectTab(options.id)}
+        icon={options.icon}
+      >
+        <View style={styles.container}>
+          <Image source={options.icon} style={styles.icon} />
+          <Text style={styles.title}>{options.title}</Text>
         </View>
-        <View style={styles.info}>
-          <Text style={styles.items}>{record.items} Items</Text>
-          <Text style={styles.address}>{record.address}</Text>
-        </View>
-        <View style={styles.total}>
-          <Text style={styles.date}>{record.date} Items</Text>
-          <Text style={styles.price}>${record.total}</Text>
-        </View>
-      </View>
+      </TabBarIOS.Item>
     )
   }
 
   render () {
     return (
-      <View style={styles.mainContainer}>
-        <Text style={styles.title}>Sales</Text>
-        <ListView
-          dataSource={this.state.dataSource}
-          renderRow={this.renderRow}
-        />
-      </View>
+      <TabBarIOS tintColor='#42b49a'>
+        {this.renderTab(
+          {title: 'Home', id: 'home', icon: homeIcon}
+        )}
+        {this.renderTab(
+          {title: 'Favorites', id: 'favorites', icon: favIcon}
+        )}
+        {this.renderTab(
+          {title: 'Blog', id: 'blog', icon: blogIcon}
+        )}
+        {this.renderTab(
+          {title: 'Profile', id: 'profile', icon: profileIcon}
+        )}
+      </TabBarIOS>
     )
   }
 }
 
 const styles = StyleSheet.create({
-  mainContainer: {
+  container: {
     flex: 1,
-    backgroundColor: '#fff'
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   title: {
-    backgroundColor: '#0f1b29',
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    padding: 10,
-    paddingTop: 40,
-    textAlign: 'center'
-  },
-  row: {
-    borderColor: '#f1f1f1',
-    borderBottomWidth: 1,
-    flexDirection: 'row',
-    marginLeft: 10,
-    marginRight: 10,
-    paddingTop: 20,
-    paddingBottom: 20
-  },
-  iconContainer: {
-    alignItems: 'center',
-    backgroundColor: '#feb401',
-    borderColor: '#feaf12',
-    borderRadius: 25,
-    borderWidth: 1,
-    justifyContent: 'center',
-    height: 50,
-    width: 50
+    fontSize: 20,
+    marginTop: 20
   },
   icon: {
-    tintColor: '#fff',
-    height: 22,
-    width: 22
-  },
-  info: {
-    flex: 1,
-    paddingLeft: 25,
-    paddingRight: 25
-  },
-  items: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginBottom: 5
-  },
-  address: {
-    color: '#ccc',
-    fontSize: 14
-  },
-  total: {
-    width: 80
-  },
-  date: {
-    fontSize: 12,
-    marginBottom: 5
-  },
-  price: {
-    color: '#1cad61',
-    fontSize: 25,
-    fontWeight: 'bold'
+    width: 30,
+    height: 30,
+    tintColor: '#42b49a'
   }
 })
 
