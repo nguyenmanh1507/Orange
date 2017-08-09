@@ -3,56 +3,65 @@ import {
   StyleSheet,
   View,
   Image,
-  Text,
-  TabBarIOS
+  ImageBackground,
+  Text
 } from 'react-native'
 
-const homeIcon = require('./images/home.png')
-const favIcon = require('./images/star.png')
-const blogIcon = require('./images/notebook.png')
-const profileIcon = require('./images/user.png')
+const profileImage = require('./images/user-profile.jpg')
+const friendsIcon = require('./images/profile.png')
+const favIcon = require('./images/plain-heart.png')
+const msgIcon = require('./images/chat.png')
 
 class MainApp extends Component {
   state = {
-    selected: 'home'
-  }
+    name: 'Crysfel',
+    lastName: 'Villa Roman',
+    occupation: 'Software Engineer',
+    friends: '1,200',
+    favorites: '2,491',
+    comments: '4,832'
+  };
 
-  selectTab (id) {
-    this.setState({ selected: id })
-  }
-
-  renderTab (options) {
+  renderStat (options) {
     return (
-      <TabBarIOS.Item
-        title={options.title}
-        selected={this.state.selected === options.id}
-        onPress={() => this.selectTab(options.id)}
-        icon={options.icon}
-      >
-        <View style={styles.container}>
-          <Image source={options.icon} style={styles.icon} />
-          <Text style={styles.title}>{options.title}</Text>
-        </View>
-      </TabBarIOS.Item>
+      <View style={styles.stat}>
+        <Image
+          source={options.icon}
+          style={[styles.icon, options.selected ? styles.selected : null]}
+        />
+        <Text style={styles.counter}>{options.value}</Text>
+      </View>
     )
   }
 
   render () {
+    const {
+      name,
+      lastName,
+      occupation,
+      friends,
+      favorites,
+      comments
+    } = this.state
+
     return (
-      <TabBarIOS tintColor='#42b49a'>
-        {this.renderTab(
-          {title: 'Home', id: 'home', icon: homeIcon}
-        )}
-        {this.renderTab(
-          {title: 'Favorites', id: 'favorites', icon: favIcon}
-        )}
-        {this.renderTab(
-          {title: 'Blog', id: 'blog', icon: blogIcon}
-        )}
-        {this.renderTab(
-          {title: 'Profile', id: 'profile', icon: profileIcon}
-        )}
-      </TabBarIOS>
+      <ImageBackground source={profileImage} style={styles.container}>
+        <View style={styles.info}>
+          <View style={styles.personal}>
+            <Text style={styles.name}>{name}
+              {lastName}
+            </Text>
+            <Text style={styles.occupation}>
+              {occupation.toUpperCase()}
+            </Text>
+          </View>
+          <View style={styles.stats}>
+            {this.renderStat({ icon: friendsIcon, value: friends, selected: true })}
+            {this.renderStat({ icon: favIcon, value: favorites })}
+            {this.renderStat({ icon: msgIcon, value: comments })}
+          </View>
+        </View>
+      </ImageBackground>
     )
   }
 }
@@ -60,17 +69,50 @@ class MainApp extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center'
+    height: null,
+    width: null
   },
-  title: {
-    fontSize: 20,
-    marginTop: 20
+  info: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    top: null
+  },
+  personal: {
+    padding: 30
+  },
+  name: {
+    color: '#fff',
+    fontFamily: 'Helvetica',
+    fontSize: 30,
+    fontWeight: 'bold'
+  },
+  occupation: {
+    color: '#d6ec1b',
+    marginTop: 5
+  },
+  selected: {
+    tintColor: '#d6ec1b'
   },
   icon: {
-    width: 30,
+    tintColor: '#504f9f',
     height: 30,
-    tintColor: '#42b49a'
+    width: 30
+  },
+  counter: {
+    color: '#fff',
+    fontSize: 15,
+    marginTop: 5
+  },
+  stats: {
+    flexDirection: 'row'
+  },
+  stat: {
+    alignItems: 'center',
+    backgroundColor: '#7675b7',
+    borderColor: '#6e6db1',
+    borderLeftWidth: 1,
+    flex: 1,
+    padding: 10
   }
 })
 
