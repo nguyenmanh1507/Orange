@@ -1,65 +1,121 @@
 import React, { Component } from 'react'
 import {
-  StyleSheet,
-  View,
-  Image,
-  Text,
-  TouchableHighlight
+ StyleSheet,
+ View,
+ ListView,
+ Image,
+ Text
 } from 'react-native'
+import data from './sales.json'
 
-const heartIcon = require('./images/plain-heart.png')
+const basketIcon = require('./images/basket.png')
 
 class MainApp extends Component {
-  state = {
-    liked: false
+  constructor (props) {
+    super(props)
+    const ds = new ListView.DataSource({
+      rowHasChanged: (r1, r2) => r1 !== r2
+    })
+
+    this.state = {
+      dataSource: ds.cloneWithRows(data)
+    }
   }
 
-  _onPressBtn = () => {
-    this.setState(prevState => ({
-      liked: !prevState.liked
-    }))
+  renderRow (record) {
+    return (
+      <View style={styles.row}>
+        <View style={styles.iconContainer}>
+          <Image source={basketIcon} style={styles.icon} />
+        </View>
+        <View style={styles.info}>
+          <Text style={styles.items}>{record.items} Items</Text>
+          <Text style={styles.address}>{record.address}</Text>
+        </View>
+        <View style={styles.total}>
+          <Text style={styles.date}>{record.date} Items</Text>
+          <Text style={styles.price}>${record.total}</Text>
+        </View>
+      </View>
+    )
   }
 
   render () {
-    const likedStyles = this.state.liked ? styles.liked : null
-
     return (
-      <View style={styles.container}>
-        <TouchableHighlight
-          onPress={this._onPressBtn}
-          style={styles.btn}
-          underlayColor='#fefefe'
-        >
-          <Image
-            source={heartIcon}
-            style={[styles.icon, likedStyles]}
-          />
-        </TouchableHighlight>
-        <Text style={styles.text}>Do u like this app?</Text>
+      <View style={styles.mainContainer}>
+        <Text style={styles.title}>Sales</Text>
+        <ListView
+          dataSource={this.state.dataSource}
+          renderRow={this.renderRow}
+        />
       </View>
     )
   }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    marginTop: 50,
-    alignItems: 'center'
+  mainContainer: {
+    flex: 1,
+    backgroundColor: '#fff'
   },
-  btn: {
-    borderRadius: 5,
-    padding: 10
+  title: {
+    backgroundColor: '#0f1b29',
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    padding: 10,
+    paddingTop: 40,
+    textAlign: 'center'
+  },
+  row: {
+    borderColor: '#f1f1f1',
+    borderBottomWidth: 1,
+    flexDirection: 'row',
+    marginLeft: 10,
+    marginRight: 10,
+    paddingTop: 20,
+    paddingBottom: 20
+  },
+  iconContainer: {
+    alignItems: 'center',
+    backgroundColor: '#feb401',
+    borderColor: '#feaf12',
+    borderRadius: 25,
+    borderWidth: 1,
+    justifyContent: 'center',
+    height: 50,
+    width: 50
   },
   icon: {
-    width: 180,
-    height: 180,
-    tintColor: '#f1f1f1'
+    tintColor: '#fff',
+    height: 22,
+    width: 22
   },
-  liked: {
-    tintColor: '#e74c3c'
+  info: {
+    flex: 1,
+    paddingLeft: 25,
+    paddingRight: 25
   },
-  text: {
-    marginTop: 20
+  items: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom: 5
+  },
+  address: {
+    color: '#ccc',
+    fontSize: 14
+  },
+  total: {
+    width: 80
+  },
+  date: {
+    fontSize: 12,
+    marginBottom: 5
+  },
+  price: {
+    color: '#1cad61',
+    fontSize: 25,
+    fontWeight: 'bold'
   }
 })
 
