@@ -45,6 +45,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 20,
     textAlign: 'center',
+    fontFamily: 'vollkorn_regular'
   },
   list: {
     backgroundColor: '#f0f3f4',
@@ -53,7 +54,7 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
   },
   content: {
-    flexDirection: 'row', 
+    flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
   },
