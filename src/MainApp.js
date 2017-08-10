@@ -1,38 +1,28 @@
-import React, { Component } from 'react'
-import { StyleSheet } from 'react-native'
-import { Navigator } from 'react-native-deprecated-custom-components'
-import Home from './Home'
-import Detail from './Detail'
+import React from 'react'
+import { Alert, StyleSheet, View } from 'react-native'
+import Button from './Button'
 
-class MainApp extends Component {
-  renderScene (route, navigator) {
-    if (route.song) {
-      return (
-        <Detail song={route.song} navigator={navigator} />
-      )
-    }
-
-    return (
-      <Home navigator={navigator} />
-    )
-  }
-
-  render () {
-    return (
-      <Navigator
-        ref={(ref) => { this.navigator = ref }}
-        style={styles.container}
-        configureScene={(route) => Navigator.SceneConfigs.FloatFromBottom}
-        initialRoute={{}}
-        renderScene={this.renderScene}
-    />
-    )
-  }
+function onPressBtn () {
+  Alert.alert('Alert', 'You clicked this button!')
 }
+
+const MainApp = () => (
+  <View style={styles.container}>
+    <Button style={styles.btn}>My first button</Button>
+    <Button success style={styles.btn}>Success button</Button>
+    <Button info style={styles.btn}>Info button</Button>
+    <Button danger rounded onPress={onPressBtn} style={styles.btn}>Rounded button</Button>
+  </View>
+)
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  btn: {
+    margin: 10
   }
 })
 
