@@ -1,63 +1,39 @@
-import React, { Component } from 'react'
-import { ListView, StyleSheet, Text, View } from 'react-native'
-import Post from './Post'
-import data from './data.json'
+import React from 'react'
+import EvilIcon from 'react-native-vector-icons/EvilIcons'
+import FAIcon from 'react-native-vector-icons/FontAwesome'
+import { StyleSheet, View } from 'react-native'
 
-class MainApp extends Component {
-  constructor(props) {
-    super(props)
-    const ds = new ListView.DataSource({
-      rowHasChanged: (r1, r2) => r1 !== r2
-    })
-
-    this.state = {
-      dataSource: ds.cloneWithRows(data.posts)
-    }
-  }
-
-  render() {
-    return (
-      <View style={styles.container}>
-        <View style={styles.toolbar}>
-          <Text style={styles.title}>Latest posts</Text>
-        </View>
-        <ListView
-          dataSource={this.state.dataSource}
-          renderRow={post => <Post {...post} />}
-          style={styles.list}
-          contentContainerStyle={styles.content}
-        />
-      </View>
-    )
-  }
-}
+const MainApp = () => (
+  <View style={styles.content}>
+    <View style={styles.row}>
+      <EvilIcon style={styles.icon} name='user' size={50} color='#e67e22' />
+      <EvilIcon style={styles.icon} name='search' size={50} color='#e67e22' />
+      <EvilIcon style={styles.icon} name='trophy' size={50} color='#e67e22' />
+      <EvilIcon style={styles.icon} name='location' size={50} color='#e67e22' />
+      <EvilIcon style={styles.icon} name='gear' size={50} color='#e67e22' />
+    </View>
+    <View style={styles.row}>
+      <FAIcon style={styles.icon} name='briefcase' size={40} color='#c0392b' />
+      <FAIcon style={styles.icon} name='calendar' size={40} color='#c0392b' />
+      <FAIcon style={styles.icon} name='camera-retro' size={40} color='#c0392b' />
+      <FAIcon style={styles.icon} name='globe' size={40} color='#c0392b' />
+      <FAIcon style={styles.icon} name='print' size={40} color='#c0392b' />
+    </View>
+  </View>
+)
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  },
-  toolbar: {
-    backgroundColor: '#34495e',
-    padding: 10,
-    paddingTop: 20,
-  },
-  title: {
-    color: '#fff',
-    fontSize: 20,
-    textAlign: 'center',
-    fontFamily: 'vollkorn_regular'
-  },
-  list: {
-    backgroundColor: '#f0f3f4',
-    flex: 1,
-    paddingTop: 5,
-    paddingBottom: 5,
-  },
   content: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
+  row: {
+    flexDirection: 'row'
+  },
+  icon: {
+    margin: 10
+  }
 })
 
 export default MainApp

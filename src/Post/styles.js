@@ -7,12 +7,12 @@ const styles = StyleSheet.create({
     height: 340,
     margin: 5,
     overflow: 'hidden',
-    width: 240,
+    width: 240
   },
   image: {
     backgroundColor: '#ccc',
     height: 120,
-    resizeMode: 'cover',
+    resizeMode: 'cover'
   },
   content: {
     padding: 10,
