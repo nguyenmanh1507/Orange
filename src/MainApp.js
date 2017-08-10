@@ -1,29 +1,62 @@
-import React from 'react'
-import { Alert, StyleSheet, View } from 'react-native'
-import Button from './Button'
+import React, { Component } from 'react'
+import { ListView, StyleSheet, Text, View } from 'react-native'
+import Post from './Post'
+import data from './data.json'
 
-function onPressBtn () {
-  Alert.alert('Alert', 'You clicked this button!')
+class MainApp extends Component {
+  constructor(props) {
+    super(props)
+    const ds = new ListView.DataSource({
+      rowHasChanged: (r1, r2) => r1 !== r2
+    })
+
+    this.state = {
+      dataSource: ds.cloneWithRows(data.posts)
+    }
+  }
+
+  render() {
+    return (
+      <View style={styles.container}>
+        <View style={styles.toolbar}>
+          <Text style={styles.title}>Latest posts</Text>
+        </View>
+        <ListView
+          dataSource={this.state.dataSource}
+          renderRow={post => <Post {...post} />}
+          style={styles.list}
+          contentContainerStyle={styles.content}
+        />
+      </View>
+    )
+  }
 }
-
-const MainApp = () => (
-  <View style={styles.container}>
-    <Button style={styles.btn}>My first button</Button>
-    <Button success style={styles.btn}>Success button</Button>
-    <Button info style={styles.btn}>Info button</Button>
-    <Button danger rounded onPress={onPressBtn} style={styles.btn}>Rounded button</Button>
-  </View>
-)
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center'
+    flex: 1
   },
-  btn: {
-    margin: 10
-  }
+  toolbar: {
+    backgroundColor: '#34495e',
+    padding: 10,
+    paddingTop: 20,
+  },
+  title: {
+    color: '#fff',
+    fontSize: 20,
+    textAlign: 'center',
+  },
+  list: {
+    backgroundColor: '#f0f3f4',
+    flex: 1,
+    paddingTop: 5,
+    paddingBottom: 5,
+  },
+  content: {
+    flexDirection: 'row', 
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+  },
 })
 
 export default MainApp
