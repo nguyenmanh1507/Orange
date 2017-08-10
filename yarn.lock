@@ -3265,6 +3265,10 @@ react-native-deprecated-custom-components@^0.1.1:
     react-timer-mixin "^0.13.2"
     rebound "^0.0.13"
 
+react-native-orientation@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-orientation/-/react-native-orientation-3.0.0.tgz#91a0a55be2d1f14ec6d0111a3bfbb5550a2e788b"
+
 react-native-vector-icons@^4.3.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/react-native-vector-icons/-/react-native-vector-icons-4.3.0.tgz#49eab845fbcde6354cb3dbcb62c1abd1f6abc866"

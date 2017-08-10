@@ -1,26 +1,37 @@
 import React, { Component } from 'react'
-import { StyleSheet, View, Text } from 'react-native'
-import Dimensions from './utils/Dimensions'
-import data from './data.json'
-import UserList from './UserList'
-import UserDetail from './UserDetail'
+import { Alert, StyleSheet, View, Text } from 'react-native'
+import Orientation from 'react-native-orientation'
+import Menu from './Menu'
 
 class MainApp extends Component {
-  renderMaster () {
-    return <UserList contacts={data.results} />
+  state = {
+    orientation: null
   }
 
-  renderDetail () {
-    if (Dimensions.isTablet()) {
-      return <UserDetail contact={data.results[0]} />
-    }
+  onOrientationChange = (orientation) => {
+    this.setState({ orientation })
+  }
+
+  componentWillMount () {
+    const orientation = Orientation.getInitialOrientation()
+    this.setState({ orientation })
+  }
+
+  componentDidMount () {
+    Orientation.addOrientationListener(this.onOrientationChange)
+  }
+
+  componentWillUnmount () {
+    Orientation.removeOrientationListener(this.onOrientationChange)
   }
 
   render () {
     return (
       <View style={styles.content}>
-        {this.renderMaster()}
-        {this.renderDetail()}
+        <Menu orientation={this.state.orientation} />
+        <View style={styles.main}>
+          <Text>Main content</Text>
+        </View>
       </View>
     )
   }
@@ -30,6 +41,12 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     flexDirection: 'row'
+  },
+  main: {
+    flex: 1,
+    backgroundColor: '#ecf0f1',
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 })
 
