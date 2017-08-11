@@ -1,38 +1,84 @@
 import React, { Component } from 'react'
-import { Alert, StyleSheet, View, Text } from 'react-native'
-import Orientation from 'react-native-orientation'
-import Menu from './Menu'
+import {
+  TouchableOpacity,
+  StyleSheet,
+  View,
+  Text
+} from 'react-native'
+import { Navigator } from 'react-native-deprecated-custom-components'
+import Browser from './BrowserView'
 
 class MainApp extends Component {
   state = {
-    orientation: null
+    links: [
+      {
+        title: 'My Blog',
+        url: 'https://medium.com/@crysfel/latest'
+      },
+      {
+        title: 'My Blog',
+        url: 'https://medium.com/@crysfel/latest'
+      },
+      {
+        title: 'My Blog',
+        url: 'https://medium.com/@crysfel/latest'
+      },
+      {
+        title: 'My Blog',
+        url: 'https://medium.com/@crysfel/latest'
+      },
+      {
+        title: 'My Blog',
+        url: 'https://medium.com/@crysfel/latest'
+      },
+      {
+        title: 'Random',
+        url: 'https://medium.com/@crysfel/latest'
+      }
+    ]
   }
 
-  onOrientationChange = (orientation) => {
-    this.setState({ orientation })
+  renderScene = (route, navigator) => {
+    if (route && route.url) {
+      return (
+        <Browser url={route.url} navigator={navigator} />
+      )
+    }
+
+    return (
+      <View style={styles.content}>
+        <Text>Home</Text>
+        <View>
+          {this.state.links.map(this.renderButton)}
+        </View>
+      </View>
+    )
   }
 
-  componentWillMount () {
-    const orientation = Orientation.getInitialOrientation()
-    this.setState({ orientation })
-  }
+  renderButton = (btn, index) => (
+    <TouchableOpacity
+      key={index}
+      onPress={() => this.onPressButton(btn.url)}
+      style={styles.btn}
+    >
+      <Text style={styles.text}>{btn.title}</Text>
+    </TouchableOpacity>
+  )
 
-  componentDidMount () {
-    Orientation.addOrientationListener(this.onOrientationChange)
-  }
-
-  componentWillUnmount () {
-    Orientation.removeOrientationListener(this.onOrientationChange)
+  onPressButton (url) {
+    this.navigator.push({ url })
   }
 
   render () {
     return (
-      <View style={styles.content}>
-        <Menu orientation={this.state.orientation} />
-        <View style={styles.main}>
-          <Text>Main content</Text>
-        </View>
-      </View>
+      <Navigator
+        ref={ref => { this.navigator = ref }}
+        renderScene={this.renderScene}
+        intialRoute={{}}
+        configureScene={route => (
+          Navigator.SceneConfigs.FloatFromBottom
+        )}
+      />
     )
   }
 }
@@ -40,13 +86,21 @@ class MainApp extends Component {
 const styles = StyleSheet.create({
   content: {
     flex: 1,
-    flexDirection: 'row'
-  },
-  main: {
-    flex: 1,
-    backgroundColor: '#ecf0f1',
     justifyContent: 'center',
     alignItems: 'center'
+  },
+  btn: {
+    // flex: 1,
+    margin: 10,
+    backgroundColor: '#c0392b',
+    borderRadius: 3,
+    padding: 10,
+    paddingRight: 30,
+    paddingLeft: 30
+  },
+  text: {
+    color: '#fff',
+    textAlign: 'center'
   }
 })
 
