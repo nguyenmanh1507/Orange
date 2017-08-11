@@ -1,106 +1,65 @@
 import React, { Component } from 'react'
 import {
-  TouchableOpacity,
+  Alert,
   StyleSheet,
+  ScrollView,
   View,
   Text
 } from 'react-native'
-import { Navigator } from 'react-native-deprecated-custom-components'
-import Browser from './BrowserView'
+import HTMLView from 'react-native-htmlview'
+import data from './data.json'
 
 class MainApp extends Component {
-  state = {
-    links: [
-      {
-        title: 'My Blog',
-        url: 'https://medium.com/@crysfel/latest'
-      },
-      {
-        title: 'My Blog',
-        url: 'https://medium.com/@crysfel/latest'
-      },
-      {
-        title: 'My Blog',
-        url: 'https://medium.com/@crysfel/latest'
-      },
-      {
-        title: 'My Blog',
-        url: 'https://medium.com/@crysfel/latest'
-      },
-      {
-        title: 'My Blog',
-        url: 'https://medium.com/@crysfel/latest'
-      },
-      {
-        title: 'Random',
-        url: 'https://medium.com/@crysfel/latest'
-      }
-    ]
-  }
-
-  renderScene = (route, navigator) => {
-    if (route && route.url) {
-      return (
-        <Browser url={route.url} navigator={navigator} />
-      )
-    }
-
-    return (
-      <View style={styles.content}>
-        <Text>Home</Text>
-        <View>
-          {this.state.links.map(this.renderButton)}
-        </View>
-      </View>
-    )
-  }
-
-  renderButton = (btn, index) => (
-    <TouchableOpacity
-      key={index}
-      onPress={() => this.onPressButton(btn.url)}
-      style={styles.btn}
-    >
-      <Text style={styles.text}>{btn.title}</Text>
-    </TouchableOpacity>
-  )
-
-  onPressButton (url) {
-    this.navigator.push({ url })
+  onLinkPress (url) {
+    Alert.alert('Link press', `URL: ${url}`)
   }
 
   render () {
     return (
-      <Navigator
-        ref={ref => { this.navigator = ref }}
-        renderScene={this.renderScene}
-        intialRoute={{}}
-        configureScene={route => (
-          Navigator.SceneConfigs.FloatFromBottom
-        )}
-      />
+      <View style={styles.main}>
+        <Text style={styles.title}>{data.title}</Text>
+        <ScrollView style={styles.content}>
+          <HTMLView
+            value={data.content}
+            stylesheet={styles}
+            onLinkPress={this.onLinkPress}
+            addLineBreaks={false}
+          />
+        </ScrollView>
+      </View>
     )
   }
 }
 
 const styles = StyleSheet.create({
+  main: {
+    flex: 1
+  },
   content: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
+    padding: 10
   },
-  btn: {
-    // flex: 1,
-    margin: 10,
+  title: {
     backgroundColor: '#c0392b',
-    borderRadius: 3,
-    padding: 10,
-    paddingRight: 30,
-    paddingLeft: 30
-  },
-  text: {
     color: '#fff',
+    padding: 20,
+    fontSize: 20,
     textAlign: 'center'
+  },
+  p: {
+    color: '#333',
+    fontSize: 16,
+    marginBottom: 16
+  },
+  h3: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 16
+  },
+  a: {
+    color: '#c0392b',
+    fontWeight: 'normal'
   }
 })
 
