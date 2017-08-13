@@ -1,36 +1,55 @@
-import React from 'react'
+import React, { Component } from 'react'
 import {
-   Alert,
-   StyleSheet,
-   ScrollView,
-   View,
-   Text,
-   TextInput
- } from 'react-native'
-import UserForm from './UserForm'
+  Animated,
+  Easing,
+  Dimensions,
+  StyleSheet
+} from 'react-native'
 
-const MainApp = () => (
-  <View style={styles.main}>
-    <Text style={styles.toolbar}>Fitness App</Text>
-    <ScrollView style={styles.content}>
-      <UserForm />
-    </ScrollView>
-  </View>
-)
+const { width, height } = Dimensions.get('window')
+const cloudImage = require('./images/cloudy.png')
+const imageWidth = 80
+
+class MainApp extends Component {
+  startAnimation () {
+    this.animatedValue.setValue(width)
+    Animated.timing(
+      this.animatedValue,
+      {
+        toValue: -imageWidth,
+        duration: 6000,
+        easing: Easing.linear
+      }
+    ).start(() => this.startAnimation())
+  }
+
+  componentWillMount () {
+    this.animatedValue = new Animated.Value()
+  }
+
+  componentDidMount () {
+    this.startAnimation()
+  }
+
+  render () {
+    return (
+      <Animated.Image
+        style={[
+          styles.image,
+          { left: this.animatedValue }
+        ]}
+        source={cloudImage}
+      />
+    )
+  }
+}
 
 const styles = StyleSheet.create({
-  main: {
-    flex: 1,
-    backgroundColor: '#ecf0f1'
-  },
-  toolbar: {
-    backgroundColor: '#1abc9c',
-    padding: 20,
-    color: '#fff',
-    fontSize: 20
-  },
-  content: {
-    padding: 10
+  image: {
+    height: imageWidth,
+    position: 'absolute',
+    top: height / 3,
+    width: imageWidth
   }
 })
 
