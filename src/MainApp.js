@@ -1,95 +1,73 @@
 import React, { Component } from 'react'
 import {
-  View,
-  Animated,
-  Image,
-  Easing,
-  Dimensions,
-  StyleSheet
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  View
 } from 'react-native'
+import Notification from './Notification'
 
-const { width, height } = Dimensions.get('window');
-const cloudImage = require('./images/cloud.png');
-const cloudsImage = require('./images/cloudy.png');
-const planeImage = require('./images/transport.png');
-const cloudWidth = 60;
-
-class MainApp extends Component {
-  componentWillMount() {
-    this.animatedValue = new Animated.Value()
+export default class MainApp extends Component {
+  state = {
+    notify: false,
+    message: 'Life is about making an impact, not making an income. -Kevin Kruse'
   }
 
-  componentDidMount() {
-    this.startAnimation()
+  onToggleNotification = () => {
+    this.setState(prevState => ({
+      notify: !prevState.notify
+    }))
+    console.log('toggle')
   }
 
-  startAnimation() {
-    this.animatedValue.setValue(1)
-    Animated.timing(
-      this.animatedValue,
-      {
-        toValue: 0,
-        duration: 6000,
-        easing: Easing.linear
-      }
-    ).start(() => this.startAnimation())
-  }
-
-  render() {
-    const left1 = this.animatedValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [-cloudWidth, width]
-    })
-
-    const left2 = this.animatedValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [-cloudWidth * 5, width + cloudWidth * 5]
-    })
+  render () {
+    const notify = this.state.notify ? (
+      <Notification
+        autoHide
+        message={this.state.message}
+        onClose={this.onToggleNotification}
+      />
+    ) : null
 
     return (
       <View>
-        <Animated.Image
-          style={[
-            styles.cloud1,
-            { left: left1 }
-          ]}
-          source={cloudImage}
-        />
-        <Animated.Image
-          style={[
-            styles.cloud1,
-            styles.cloud2,
-            { left: left2 }
-          ]}
-          source={cloudImage}
-        />
-        <Image
-          style={[styles.cloud1, styles.plane]}
-          source={planeImage}
-        />
+        <Text style={styles.toolbar}>Main toolbar</Text>
+        <View style={styles.content}>
+          <Text>Blazeon Scrambles to Police Content Amid Rapid Growth</Text>
+          <TouchableOpacity
+            onPress={this.onToggleNotification}
+            style={styles.btn}
+          >
+            <Text style={styles.text}>Show notification</Text>
+          </TouchableOpacity>
+          <Text>Pizzi Announces $1 Billion Fund to Create U.S. Jobs in Manufacturing</Text>
+          {notify}
+        </View>
       </View>
     )
   }
 }
 
 const styles = StyleSheet.create({
-  cloud1: {
-    position: 'absolute',
-    width: cloudWidth,
-    height: cloudWidth,
-    top: height / 3 - cloudWidth / 2
+  toolbar: {
+    backgroundColor: '#8e44ad',
+    color: '#fff',
+    fontSize: 22,
+    padding: 20,
+    textAlign: 'center'
   },
-  cloud2: {
-    width: cloudWidth * 1.5,
-    height: cloudWidth * 1.5,
-    top: height / 2
+  content: {
+    padding: 10,
+    overflow: 'hidden'
   },
-  plane: {
-    width: cloudWidth * 1.3,
-    height: cloudWidth * 1.3,
-    top: height / 2 - cloudWidth,
-    left: width / 2 - cloudWidth / 2
+  btn: {
+    margin: 10,
+    backgroundColor: '#9b59b6',
+    borderRadius: 3,
+    padding: 10
+  },
+  text: {
+    textAlign: 'center',
+    color: '#fff'
   }
 })
-
-export default MainApp

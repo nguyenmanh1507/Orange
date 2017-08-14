@@ -1,4 +1,4 @@
-import { Dimensions as RNDimensions, Alert } from 'react-native'
+import { Dimensions as RNDimensions } from 'react-native'
 
 // Tablet portrait dimensions
 const tablet = {
