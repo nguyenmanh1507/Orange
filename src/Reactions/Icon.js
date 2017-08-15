@@ -1,12 +1,10 @@
 import React, { Component, PropTypes } from 'react'
 import {
   Animated,
-  Dimensions,
   Easing,
   Image,
   StyleSheet,
-  TouchableOpacity,
-  View
+  TouchableOpacity
 } from 'react-native'
 
 function emptyFn () {}
@@ -56,7 +54,7 @@ class Icon extends Component {
   }
 
   render () {
-    const { name, index, onPress } = this.props
+    const { name, index } = this.props
     const left = index * 50
 
     const top = this.animatedValue.interpolate({
