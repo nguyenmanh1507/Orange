@@ -1,43 +1,62 @@
 import React, { PureComponent } from 'react'
-import { NetInfo, StyleSheet, Text, View } from 'react-native'
+import { NetInfo, StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 
 class MainApp extends PureComponent {
+  pendingSync = undefined
+
   state = {
-    online: null,
-    offline: null
+    isConnected: undefined,
+    syncStatus: undefined,
+    serverResponse: undefined,
+    syncStatus: ''
   }
 
-  onConnectivityChange = reach => {
-    const type = reach.toLowerCase()
-    this.setState({
-      online: type !== 'none',
-      offline: type === 'none'
+  submitData(bodyData) {
+    return fetch('https://posttestserver.com/post.php', {
+      method: 'POST',
+      body: JSON.stringify(bodyData)
     })
+      .then(response => response.text())
+      .then(responseText => {
+        this.setState({ serverResponse: responseText })
+      })
   }
 
-  renderMask() {
-    if (this.state.offline) {
-      return (
-        <View style={styles.mask}>
-          <View style={styles.msg}>
-            <Text style={styles.alert}>
-              Seems like you do not have network connection anymore.
-            </Text>
-            <Text style={styles.alert}>
-              You can still continue using the app, with limited content.
-            </Text>
-          </View>
-        </View>
-      )
+  onSubmitPress = () => {
+    const { isConnected } = this.state
+    submitBody = {
+      name: 'React Native Cookbook',
+      timestamp: Date.now()
+    }
+
+    if (isConnected) {
+      this.submitData(submitBody)
+      return
+    }
+
+    this.pendingSync = submitBody
+    this.setState({ syncStatus: 'Pending' })
+  }
+
+  onConnectedChange = isConnected => {
+    const pendingSync = this.pendingSync
+    this.setState({ isConnected })
+
+    if (pendingSync) {
+      this.setState({ syncStatus: 'Syncing' })
+
+      this.submitData(pendingSync).then(() => {
+        this.setState({ syncStatus: 'Sync complete' })
+      })
     }
   }
 
   componentWillMount() {
-    NetInfo.fetch().done(reach => {
-      this.onConnectivityChange(reach)
+    NetInfo.isConnected.fetch().then(isConnected => {
+      this.setState({ isConnected })
     })
 
-    NetInfo.addEventListener('change', this.onConnectivityChange)
+    NetInfo.isConnected.addEventListener('change', this.onConnectedChange)
   }
 
   componentWillUnmount() {
@@ -45,12 +64,23 @@ class MainApp extends PureComponent {
   }
 
   render() {
+    const { isConnected, syncStatus, serverResponse } = this.state
     return (
       <View style={styles.container}>
-        <Text style={styles.toolbar}>My Awesome App</Text>
-        <Text style={styles.text}>Lorem...</Text>
-        <Text style={styles.text}>Lorem ipsum...</Text>
-        {this.renderMask()}
+        <TouchableOpacity onPress={this.onSubmitPress}>
+          <View style={styles.button}>
+            <Text style={styles.buttonText}>Submit Data</Text>
+          </View>
+        </TouchableOpacity>
+        <Text style={styles.instructions}>
+          Connection Status: {isConnected ? 'Connected' : 'Disconnected'}
+        </Text>
+        <Text style={styles.instructions}>
+          Sync Status: {syncStatus}
+        </Text>
+        <Text style={styles.instructions}>
+          Server Response: {serverResponse}
+        </Text>
       </View>
     )
   }
@@ -59,40 +89,28 @@ class MainApp extends PureComponent {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#F5FCFF'
   },
-  toolbar: {
-    backgroundColor: '#3498db',
-    padding: 15,
-    fontSize: 20,
-    color: '#fff',
-    textAlign: 'center'
-  },
-  text: {
-    padding: 10
-  },
-  mask: {
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    bottom: 0,
-    justifyContent: 'center',
-    left: 0,
-    position: 'absolute',
-    top: 0,
-    right: 0
-  },
-  msg: {
-    backgroundColor: '#ecf0f1',
-    borderRadius: 10,
-    height: 200,
-    justifyContent: 'center',
-    padding: 10,
-    width: 300
-  },
-  alert: {
+  welcome: {
     fontSize: 20,
     textAlign: 'center',
-    margin: 5
+    margin: 10
+  },
+  instructions: {
+    textAlign: 'center',
+    color: '#333333',
+    marginBottom: 5
+  },
+  button: {
+    padding: 20,
+    backgroundColor: '#fff'
+  },
+  buttonText: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: 'blue'
   }
 })
 
