@@ -1,94 +1,56 @@
-import React, { Component } from 'react'
-import { Button, StyleSheet, View, Text } from 'react-native'
-import Realm from 'realm'
+import React, { PureComponent } from 'react'
+import { NetInfo, StyleSheet, Text, View } from 'react-native'
 
-class MainApp extends Component {
-  realm = undefined
-
-  state = { users: [] }
-
-  getRandomUser() {
-    return fetch('https://randomuser.me/api/').then(res => res.json())
+class MainApp extends PureComponent {
+  state = {
+    online: null,
+    offline: null
   }
 
-  createUser = () => {
-    const realm = this.realm
-
-    this.getRandomUser().then(res => {
-      const user = res.results[0]
-      const userName = user.name
-      realm.write(() => {
-        realm.create('User', {
-          firstName: userName.first,
-          lastName: userName.last,
-          email: user.email
-        })
-        this.setState({ users: realm.objects('User') })
-      })
+  onConnectivityChange = reach => {
+    const type = reach.toLowerCase()
+    this.setState({
+      online: type !== 'none',
+      offline: type === 'none'
     })
   }
 
-  updateUser = () => {
-    const realm = this.realm
-    const users = realm.objects('User')
-
-    realm.write(() => {
-      if (users.length) {
-        let firstUser = users.slice(0, 1)[0]
-        firstUser.firstName = 'Bob'
-        firstUser.lastName = 'Cookbook'
-        firstUser.email = 'example@mail.com'
-        this.setState({ users })
-      }
-    })
-  }
-
-  deleteUsers = () => {
-    const realm = this.realm
-    realm.write(() => {
-      realm.deleteAll()
-      this.setState({ users: realm.objects('User') })
-    })
+  renderMask() {
+    if (this.state.offline) {
+      return (
+        <View style={styles.mask}>
+          <View style={styles.msg}>
+            <Text style={styles.alert}>
+              Seems like you do not have network connection anymore.
+            </Text>
+            <Text style={styles.alert}>
+              You can still continue using the app, with limited content.
+            </Text>
+          </View>
+        </View>
+      )
+    }
   }
 
   componentWillMount() {
-    const realm = (this.realm = new Realm({
-      schema: [
-        {
-          name: 'User',
-          properties: {
-            firstName: 'string',
-            lastName: 'string',
-            email: 'string'
-          }
-        }
-      ]
-    }))
+    NetInfo.fetch().done(reach => {
+      this.onConnectivityChange(reach)
+    })
 
-    this.setState({ users: realm.objects('User') })
+    NetInfo.addEventListener('change', this.onConnectivityChange)
+  }
+
+  componentWillUnmount() {
+    NetInfo.removeEventListener('change', this.onConnectivityChange)
   }
 
   render() {
-    const realm = this.realm
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>Welcome to Realm DB Test!</Text>
-        <View style={styles.container}>
-          <Button onPress={this.createUser} title='Add User' />
-          <Button onPress={this.updateUser} title='Update First User'/>
-          <Button onPress={this.deleteUsers} title='Remove All Users' />
-        </View>
-        <View style={styles.container}>
-          <Text style={styles.welcome}>Users:</Text>
-          {this.state.users.map((user, idx) => {
-            return (
-              <Text key={idx}>
-                {user.firstName} {user.lastName}
-                {user.email}
-              </Text>
-            )
-          })}
-        </View>
+        <Text style={styles.toolbar}>My Awesome App</Text>
+        <Text style={styles.text}>Lorem...</Text>
+        <Text style={styles.text}>Lorem ipsum...</Text>
+        {this.renderMask()}
       </View>
     )
   }
@@ -97,28 +59,40 @@ class MainApp extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#F5FCFF'
   },
-  welcome: {
+  toolbar: {
+    backgroundColor: '#3498db',
+    padding: 15,
+    fontSize: 20,
+    color: '#fff',
+    textAlign: 'center'
+  },
+  text: {
+    padding: 10
+  },
+  mask: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    bottom: 0,
+    justifyContent: 'center',
+    left: 0,
+    position: 'absolute',
+    top: 0,
+    right: 0
+  },
+  msg: {
+    backgroundColor: '#ecf0f1',
+    borderRadius: 10,
+    height: 200,
+    justifyContent: 'center',
+    padding: 10,
+    width: 300
+  },
+  alert: {
     fontSize: 20,
     textAlign: 'center',
-    margin: 10,
-    paddingTop: 25
-  },
-  buttonContainer: {
-    width: 200,
-    padding: 10,
-    margin: 5,
-    height: 40,
-    overflow: 'hidden',
-    borderRadius: 4,
-    backgroundColor: '#FF5722'
-  },
-  buttonStyle: {
-    fontSize: 16,
-    color: 'white'
+    margin: 5
   }
 })
 
