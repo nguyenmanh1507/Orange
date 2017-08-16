@@ -1,108 +1,91 @@
-import React, { PureComponent } from 'react'
+import React, { Component } from 'react'
 import {
-  Alert,
+  Dimensions,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View
 } from 'react-native'
 
-const endpoint = 'https://my-bookmarks-api.herokuapp.com/api/bookmarks'
+const { width } = Dimensions.get('window')
 
-class MainApp extends PureComponent {
+class MainApp extends Component {
   state = {
-    result: '',
-    title: '',
-    url: ''
+    history: []
   }
 
-  onLoad = async () => {
-    this.setState({ result: 'Loading, please wait...' })
-    const response = await fetch(endpoint, {
-      method: 'GET'
-    })
-
-    if (response.ok) {
-      const result = await response.text()
-      this.setState({ result })
-      return
-    }
-
-    this.setState({ result: 'Oop! Something wrong' })
+  onOpenConnection = () => {
+    console.log('Open')
   }
 
-  onSave = async () => {
-    const { title, url } = this.state
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8'
-      },
-      body: JSON.stringify({
-        category_id: 1,
-        title,
-        url
-      })
-    })
-
-    const result = await response.json()
-
-    console.log(result)
-
-    if (result.success === false) {
-      Alert.alert('Error', 'There was an error while saving the bookmark')
-      return
-    }
-
-    Alert.alert('Success', 'Bookmark successfully saved')
-    this.onLoad()
+  onMessageReceived = event => {
+    this.setState(prevState => ({
+      history: [...prevState.history, { owner: false, msg: event.data }]
+    }))
   }
 
-  onTitleChange = title => {
-    this.setState({ title }, () => {
-      console.log(title)
-    })
+  onSendMessage = () => {
+    const { text } = this.state
+
+    this.setState(prevState => ({
+      history: [...prevState.history, { owner: true, msg: text }],
+      text: ''
+    }))
+
+    this.ws.send(text)
   }
 
-  onUrlChange = url => {
-    this.setState({ url }, () => {
-      console.log(url)
-    })
+  onError = event => {
+    console.log('onerror', event.message)
+  }
+
+  onClose = event => {
+    console.log('onclose', event.code, event.reason)
+  }
+
+  onChangeText = text => {
+    this.setState({ text })
+  }
+
+  renderMessage(item, index) {
+    const kind = item.owner ? styles.me : styles.friend
+
+    return (
+      <View style={[styles.msg, kind]} key={index}>
+        <Text>
+          {item.msg}
+        </Text>
+      </View>
+    )
+  }
+
+  componentWillMount() {
+    this.ws = new WebSocket('ws://localhost:3003')
+
+    this.ws.onopen = this.onOpenConnection
+    this.ws.onmessage = this.onMessageReceived
+    this.ws.onerror = this.onError
+    this.ws.onclose = this.onClose
   }
 
   render() {
-    const { result, title, url } = this.state
+    const { history, text } = this.state
 
     return (
       <View style={styles.container}>
-        <Text style={styles.toolbar}>Add a new bookmark</Text>
+        <Text style={styles.toolbar}>Simple chat</Text>
         <ScrollView style={styles.content}>
-          <TextInput
-            style={styles.input}
-            onChangeText={this.onTitleChange}
-            value={title}
-            placeholder="Title"
-          />
-          <TextInput
-            style={styles.input}
-            onChangeText={this.onUrlChange}
-            value={url}
-            placeholder="URL (http://example.com)"
-            autoCapitalize="none"
-          />
-          <TouchableOpacity onPress={this.onSave} style={styles.btn}>
-            <Text style={{ textAlign: 'center' }}>Save!</Text>
-          </TouchableOpacity>
-          <TextInput
-            style={styles.preview}
-            value={result}
-            placeholder="Preview"
-            editable={false}
-            multiline
-          />
+          {history.map(this.renderMessage)}
         </ScrollView>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={text}
+            onChangeText={this.onChangeText}
+            onSubmitEditing={this.onSendMessage}
+          />
+        </View>
       </View>
     )
   }
@@ -110,39 +93,41 @@ class MainApp extends PureComponent {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff'
-  },
-  toolbar: {
-    backgroundColor: '#3498db',
-    color: '#fff',
-    textAlign: 'center',
-    padding: 25,
-    fontSize: 20
-  },
-  content: {
-    flex: 1,
-    padding: 10
-  },
-  preview: {
-    backgroundColor: '#bdc3c7',
-    flex: 1,
-    height: 500,
-    borderRadius: 3
-  },
-  input: {
     backgroundColor: '#ecf0f1',
-    borderRadius: 3,
-    height: 40,
-    padding: 5,
-    marginBottom: 10,
     flex: 1
   },
-  btn: {
-    backgroundColor: '#3498db',
+  toolbar: {
+    backgroundColor: '#34495e',
+    color: '#fff',
+    fontSize: 20,
+    padding: 25,
+    textAlign: 'center'
+  },
+  content: {
+    flex: 1
+  },
+  inputContainer: {
+    backgroundColor: '#bdc3c7',
+    padding: 5
+  },
+  input: {
+    height: 40,
+    backgroundColor: '#fff'
+  },
+  msg: {
+    margin: 5,
     padding: 10,
-    borderRadius: 3,
-    marginBottom: 30
+    borderRadius: 10
+  },
+  me: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#1abc9c',
+    marginRight: 100
+  },
+  friend: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#fff',
+    marginLeft: 100
   }
 })
 
