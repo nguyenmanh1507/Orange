@@ -1,90 +1,93 @@
 import React, { Component } from 'react'
-import {
-  Dimensions,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View
-} from 'react-native'
-
-const { width } = Dimensions.get('window')
+import { Button, StyleSheet, View, Text } from 'react-native'
+import Realm from 'realm'
 
 class MainApp extends Component {
-  state = {
-    history: []
+  realm = undefined
+
+  state = { users: [] }
+
+  getRandomUser() {
+    return fetch('https://randomuser.me/api/').then(res => res.json())
   }
 
-  onOpenConnection = () => {
-    console.log('Open')
+  createUser = () => {
+    const realm = this.realm
+
+    this.getRandomUser().then(res => {
+      const user = res.results[0]
+      const userName = user.name
+      realm.write(() => {
+        realm.create('User', {
+          firstName: userName.first,
+          lastName: userName.last,
+          email: user.email
+        })
+        this.setState({ users: realm.objects('User') })
+      })
+    })
   }
 
-  onMessageReceived = event => {
-    this.setState(prevState => ({
-      history: [...prevState.history, { owner: false, msg: event.data }]
-    }))
+  updateUser = () => {
+    const realm = this.realm
+    const users = realm.objects('User')
+
+    realm.write(() => {
+      if (users.length) {
+        let firstUser = users.slice(0, 1)[0]
+        firstUser.firstName = 'Bob'
+        firstUser.lastName = 'Cookbook'
+        firstUser.email = 'example@mail.com'
+        this.setState({ users })
+      }
+    })
   }
 
-  onSendMessage = () => {
-    const { text } = this.state
-
-    this.setState(prevState => ({
-      history: [...prevState.history, { owner: true, msg: text }],
-      text: ''
-    }))
-
-    this.ws.send(text)
-  }
-
-  onError = event => {
-    console.log('onerror', event.message)
-  }
-
-  onClose = event => {
-    console.log('onclose', event.code, event.reason)
-  }
-
-  onChangeText = text => {
-    this.setState({ text })
-  }
-
-  renderMessage(item, index) {
-    const kind = item.owner ? styles.me : styles.friend
-
-    return (
-      <View style={[styles.msg, kind]} key={index}>
-        <Text>
-          {item.msg}
-        </Text>
-      </View>
-    )
+  deleteUsers = () => {
+    const realm = this.realm
+    realm.write(() => {
+      realm.deleteAll()
+      this.setState({ users: realm.objects('User') })
+    })
   }
 
   componentWillMount() {
-    this.ws = new WebSocket('ws://localhost:3003')
+    const realm = (this.realm = new Realm({
+      schema: [
+        {
+          name: 'User',
+          properties: {
+            firstName: 'string',
+            lastName: 'string',
+            email: 'string'
+          }
+        }
+      ]
+    }))
 
-    this.ws.onopen = this.onOpenConnection
-    this.ws.onmessage = this.onMessageReceived
-    this.ws.onerror = this.onError
-    this.ws.onclose = this.onClose
+    this.setState({ users: realm.objects('User') })
   }
 
   render() {
-    const { history, text } = this.state
-
+    const realm = this.realm
     return (
       <View style={styles.container}>
-        <Text style={styles.toolbar}>Simple chat</Text>
-        <ScrollView style={styles.content}>
-          {history.map(this.renderMessage)}
-        </ScrollView>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            value={text}
-            onChangeText={this.onChangeText}
-            onSubmitEditing={this.onSendMessage}
-          />
+        <Text style={styles.welcome}>Welcome to Realm DB Test!</Text>
+        <View style={styles.container}>
+          <Button onPress={this.createUser} title='Add User' />
+          <Button onPress={this.updateUser} title='Update First User'/>
+          <Button onPress={this.deleteUsers} title='Remove All Users' />
+        </View>
+        <View style={styles.container}>
+          <Text style={styles.welcome}>Users:</Text>
+          {this.state.users.map((user, idx) => {
+            return (
+              <Text key={idx}>
+                {user.firstName} {user.lastName}
+                {user.email}
+              </Text>
+            )
+          })}
         </View>
       </View>
     )
@@ -93,41 +96,29 @@ class MainApp extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#ecf0f1',
-    flex: 1
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5FCFF'
   },
-  toolbar: {
-    backgroundColor: '#34495e',
-    color: '#fff',
+  welcome: {
     fontSize: 20,
-    padding: 25,
-    textAlign: 'center'
+    textAlign: 'center',
+    margin: 10,
+    paddingTop: 25
   },
-  content: {
-    flex: 1
-  },
-  inputContainer: {
-    backgroundColor: '#bdc3c7',
-    padding: 5
-  },
-  input: {
-    height: 40,
-    backgroundColor: '#fff'
-  },
-  msg: {
-    margin: 5,
+  buttonContainer: {
+    width: 200,
     padding: 10,
-    borderRadius: 10
+    margin: 5,
+    height: 40,
+    overflow: 'hidden',
+    borderRadius: 4,
+    backgroundColor: '#FF5722'
   },
-  me: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#1abc9c',
-    marginRight: 100
-  },
-  friend: {
-    alignSelf: 'flex-end',
-    backgroundColor: '#fff',
-    marginLeft: 100
+  buttonStyle: {
+    fontSize: 16,
+    color: 'white'
   }
 })
 
